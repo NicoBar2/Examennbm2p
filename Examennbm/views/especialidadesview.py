@@ -1,6 +1,7 @@
 import reflex as rx
 from ..models.citas import Especialidad
 from ..servicios.especialidadesservices import *
+from Examennbm.templates import template
 
 class EspecialidadState(rx.State):
     especialidades: list[Especialidad]
@@ -26,7 +27,7 @@ class EspecialidadState(rx.State):
         except Exception as e:
             print(e)
 
-@rx.page(route="/especialidades", title="Lista de Especialidades", on_load=EspecialidadState.get_todas_especialidades)
+@template(route="/especialidades", title="Lista de Especialidades", on_load=EspecialidadState.get_todas_especialidades)
 def especialidad_page() -> rx.Component:
     return rx.flex(
         rx.heading("Especialidades", title="Especialidades", size="5", center=True),

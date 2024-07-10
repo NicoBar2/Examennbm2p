@@ -1,6 +1,7 @@
 import reflex as rx
 from ..models.citas import Usuarios
 from ..servicios.userservice import *
+from Examennbm.templates import template
 
 class UsuarioState(rx.State):
     usuarios: list[Usuarios]
@@ -28,7 +29,7 @@ class UsuarioState(rx.State):
         except Exception as e:
             print(e)
 
-@rx.page(route="/usuarios", title="Lista de Usuarios", on_load=UsuarioState.get_todos_usuarios)
+@template(route="/usuarios", title="Lista de Usuarios", on_load=UsuarioState.get_todos_usuarios)
 def usuario_page() -> rx.Component:
     return rx.flex(
         rx.heading("Usuarios", title="Usuarios", size="5", center=True),

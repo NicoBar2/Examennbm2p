@@ -1,6 +1,7 @@
 import reflex as rx
 from ..models.citas import HojaVida
 from ..servicios.hojavidaservice import *
+from Examennbm.templates import template
 
 class HojaVidaState(rx.State):
     hojas_vida: list[HojaVida]
@@ -29,7 +30,7 @@ class HojaVidaState(rx.State):
         except Exception as e:
             print(e)
 
-@rx.page(route="/hojas_vida", title="Hojas de Vida", on_load=HojaVidaState.get_todas_hojas_vida)
+@template(route="/hojas_vida", title="Hojas de Vida", on_load=HojaVidaState.get_todas_hojas_vida)
 def hoja_vida_page() -> rx.Component:
     return rx.flex(
         rx.heading("Hojas de Vida", title="Hojas de Vida", size="5", center=True),

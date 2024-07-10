@@ -10,7 +10,7 @@ class Persona(rx.Model, table=True):
     correo: str = Field(unique=True)
     celular: str
     direccion: str
-    hoja_vida: str
+    hoja_vida: Optional['HojaVida'] = Relationship(back_populates="persona")
 
 class Usuarios(rx.Model, table=True):
     username: str = Field(unique=True)
@@ -19,13 +19,11 @@ class Usuarios(rx.Model, table=True):
 
 class HojaVida(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    persona_id: Optional[int] = Field(foreign_key="persona.id")
     experiencia: str
     educacion: str
     habilidades: str
-    persona: Optional[Persona] = Relationship(back_populates="hoja_vida")
-
-Persona.hoja_vida = Relationship(back_populates="persona")
+    persona_id: Optional[int] = Field(foreign_key="persona.id")
+    persona: Optional['Persona'] = Relationship(back_populates="hoja_vida")
 
 class Medicos(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -34,7 +32,7 @@ class Medicos(rx.Model, table=True):
     apellidos: str
     correo: str
     celular: str
-    especialidades: List["Especialidad"] = Relationship(back_populates="medicos")
+    especialidades: List["Especialidad"] = Relationship(back_populates="medico")
     diagnosticos: List["Diagnostico"] = Relationship(back_populates="medico")
     recetas: List["Receta"] = Relationship(back_populates="medico")
 
@@ -54,7 +52,8 @@ class Especialidad(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     nombre: str = Field(unique=True)
     descripcion: str
-    medicos: List[Medicos] = Relationship(back_populates="especialidades")
+    medicos_id: Optional[int] = Field(foreign_key="medicos.id")
+    medico: Optional['Medicos'] = Relationship(back_populates="especialidades")
 
 class Diagnostico(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -62,8 +61,8 @@ class Diagnostico(rx.Model, table=True):
     descripcion: str
     medico_id: Optional[int] = Field(foreign_key="medicos.id")
     paciente_id: Optional[int] = Field(foreign_key="pacientes.id")
-    medico: Optional[Medicos] = Relationship(back_populates="diagnosticos")
-    paciente: Optional[Pacientes] = Relationship(back_populates="diagnosticos")
+    medico: Optional['Medicos'] = Relationship(back_populates="diagnosticos")
+    paciente: Optional['Pacientes'] = Relationship(back_populates="diagnosticos")
     recetas: List["Receta"] = Relationship(back_populates="diagnostico")
 
 class Receta(rx.Model, table=True):
@@ -74,6 +73,6 @@ class Receta(rx.Model, table=True):
     medico_id: Optional[int] = Field(foreign_key="medicos.id")
     paciente_id: Optional[int] = Field(foreign_key="pacientes.id")
     diagnostico_id: Optional[int] = Field(foreign_key="diagnostico.id")
-    medico: Optional[Medicos] = Relationship(back_populates="recetas")
-    paciente: Optional[Pacientes] = Relationship(back_populates="recetas")
-    diagnostico: Optional[Diagnostico] = Relationship(back_populates="recetas")
+    medico: Optional['Medicos'] = Relationship(back_populates="recetas")
+    paciente: Optional['Pacientes'] = Relationship(back_populates="recetas")
+    diagnostico: Optional['Diagnostico'] = Relationship(back_populates="recetas")

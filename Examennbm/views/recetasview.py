@@ -1,6 +1,7 @@
 import reflex as rx
 from ..models.citas import Receta
 from ..servicios.recetasservice import *
+from Examennbm.templates import template
 
 class RecetaState(rx.State):
     recetas: list[Receta]
@@ -27,7 +28,7 @@ class RecetaState(rx.State):
         except Exception as e:
             print(e)
 
-@rx.page(route="/recetas", title="Lista de Recetas", on_load=RecetaState.get_todas_recetas)
+@template(route="/recetas", title="Lista de Recetas", on_load=RecetaState.get_todas_recetas)
 def receta_page() -> rx.Component:
     return rx.flex(
         rx.heading("Recetas", title="Recetas", size="5", center=True),

@@ -1,6 +1,7 @@
 import reflex as rx
 from ..models.citas import Diagnostico
 from ..servicios.diagnosticoservice import *
+from Examennbm.templates import template
 
 class DiagnosticoState(rx.State):
     diagnosticos: list[Diagnostico]
@@ -27,7 +28,7 @@ class DiagnosticoState(rx.State):
         except Exception as e:
             print(e)
 
-@rx.page(route="/diagnosticos", title="Lista de Diagnósticos", on_load=DiagnosticoState.get_todos_diagnosticos)
+@template(route="/diagnosticos", title="Lista de Diagnósticos", on_load=DiagnosticoState.get_todos_diagnosticos)
 def diagnostico_page() -> rx.Component:
     return rx.flex(
         rx.heading("Diagnósticos", title="Diagnósticos", size="5", center=True),
