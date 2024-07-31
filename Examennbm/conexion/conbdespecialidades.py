@@ -4,6 +4,7 @@ from sqlmodel import Session, select
 from sqlalchemy.exc import SQLAlchemyError
 
 def select_all_especialidades():
+    print("Estoy en el repositorio")
     engine = connect()
     with Session(engine) as session:
         consulta = select(Especialidad)

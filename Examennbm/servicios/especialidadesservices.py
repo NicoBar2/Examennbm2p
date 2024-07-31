@@ -6,8 +6,8 @@ from ..conexion.conbdespecialidades import (select_all_especialidades,
                                       actualizar_especialidad)
 
 def servicio_especialidades_all():
+    print("Estoy en el servicio")
     especialidades = select_all_especialidades()
-    print(especialidades)
     return especialidades
 
 def servicio_consultar_especialidad(nombre: str):

@@ -3,37 +3,44 @@ from ..models.citas import HojaVida
 from ..servicios.hojavidaservice import *
 from Examennbm.templates import template
 
+
 class HojaVidaState(rx.State):
     hojas_vida: list[HojaVida]
     buscar_persona_id: int = 0
 
-    rx.background
-    def get_todas_hojas_vida(self):
-        self.hojas_vida = servicio_hojas_vida_all()
+    @rx.background
+    async def get_todas_hojas_vida(self):
+        async with self:
+            self.hojas_vida = servicio_hojas_vida_all()
 
-    rx.background
-    def get_hoja_vida_persona(self):
-        self.hojas_vida = servicio_consultar_hoja_vida(self.buscar_persona_id)
+    @rx.background
+    async def get_hoja_vida_persona(self):
+        async with self:
+            self.hojas_vida = servicio_consultar_hoja_vida(
+                self.buscar_persona_id)
 
     def buscar_onchange(self, value: str):
         self.buscar_persona_id = int(value) if value.isdigit() else 0
 
-    rx.background
-    def crear_hoja_vida(self, data: dict):
-        try:
-            self.hojas_vida = servicio_crear_hoja_vida(
-                int(data['persona_id']),
-                data['experiencia'],
-                data['educacion'],
-                data['habilidades']
-            )
-        except Exception as e:
-            print(e)
+    @rx.background
+    async def crear_hoja_vida(self, data: dict):
+        async with self:
+            try:
+                self.hojas_vida = servicio_crear_hoja_vida(
+                    int(data['persona_id']),
+                    data['experiencia'],
+                    data['educacion'],
+                    data['habilidades']
+                )
+            except Exception as e:
+                print(e)
+
 
 @template(route="/hojas_vida", title="Hojas de Vida", on_load=HojaVidaState.get_todas_hojas_vida)
 def hoja_vida_page() -> rx.Component:
     return rx.flex(
-        rx.heading("Hojas de Vida", title="Hojas de Vida", size="5", center=True),
+        rx.heading("Hojas de Vida", title="Hojas de Vida",
+                   size="5", center=True),
         rx.vstack(
             buscar_hoja_vida_persona(),
             dialog_hoja_vida_form(),
@@ -45,6 +52,7 @@ def hoja_vida_page() -> rx.Component:
         justify="center",
         style={"margin": "auto", 'width': "100%"},
     )
+
 
 def tabla_hojas_vida(lista_hojas_vida: list[HojaVida]) -> rx.Component:
     return rx.table.root(
@@ -63,6 +71,7 @@ def tabla_hojas_vida(lista_hojas_vida: list[HojaVida]) -> rx.Component:
         ),
     )
 
+
 def row_table(hoja_vida: HojaVida) -> rx.Component:
     return rx.table.row(
         rx.table.cell(hoja_vida.id),
@@ -78,11 +87,15 @@ def row_table(hoja_vida: HojaVida) -> rx.Component:
         ),
     )
 
+
 def buscar_hoja_vida_persona() -> rx.Component:
     return rx.hstack(
-        rx.input(placeholder="ID de la Persona", on_change=HojaVidaState.buscar_onchange),
-        rx.button("Buscar Hoja de Vida", on_click=HojaVidaState.get_hoja_vida_persona)
+        rx.input(placeholder="ID de la Persona",
+                 on_change=HojaVidaState.buscar_onchange),
+        rx.button("Buscar Hoja de Vida",
+                  on_click=HojaVidaState.get_hoja_vida_persona)
     )
+
 
 def dialog_hoja_vida_form() -> rx.Component:
     return rx.dialog.root(
@@ -109,10 +122,12 @@ def dialog_hoja_vida_form() -> rx.Component:
         ),
     )
 
+
 def crear_hoja_vida_form() -> rx.Component:
     return rx.form(
         rx.vstack(
-            rx.input(placeholder="ID de la Persona", name="persona_id", type="number"),
+            rx.input(placeholder="ID de la Persona",
+                     name="persona_id", type="number"),
             rx.input(placeholder="Experiencia", name="experiencia"),
             rx.input(placeholder="Educación", name="educacion"),
             rx.input(placeholder="Habilidades", name="habilidades"),

@@ -3,23 +3,27 @@ from ..models.citas import Usuarios
 from ..servicios.userservice import *
 from Examennbm.templates import template
 
+
 class UsuarioState(rx.State):
     usuarios: list[Usuarios]
     buscar_username: str = ""
 
-    rx.background
-    def get_todos_usuarios(self):
-        self.usuarios = servicio_usuarios_all()
+    @rx.background
+    async def get_todos_usuarios(self):
+        async with self:
+         self.usuarios = servicio_usuarios_all()
 
-    rx.background
-    def get_usuario_username(self):
-        self.usuarios = servicio_consultar_usuario(self.buscar_username)
+    @rx.background
+    async def get_usuario_username(self):
+        async with self:
+            self.usuarios = servicio_consultar_usuario(self.buscar_username)
 
     def buscar_onchange(self, value: str):
         self.buscar_username = value
 
-    rx.background
-    def crear_usuario(self, data: dict):
+    @rx.background
+    async def crear_usuario(self, data: dict):
+        async with self:
         try:
             self.usuarios = servicio_crear_usuario(
                 data['username'], data['password'], data['rol'],
@@ -28,6 +32,7 @@ class UsuarioState(rx.State):
             )
         except Exception as e:
             print(e)
+
 
 @template(route="/usuarios", title="Lista de Usuarios", on_load=UsuarioState.get_todos_usuarios)
 def usuario_page() -> rx.Component:
@@ -45,6 +50,7 @@ def usuario_page() -> rx.Component:
         style={"margin": "auto", 'width': "100%"},
     )
 
+
 def tabla_usuarios(lista_usuarios: list[Usuarios]) -> rx.Component:
     return rx.table.root(
         rx.table.header(
@@ -61,6 +67,7 @@ def tabla_usuarios(lista_usuarios: list[Usuarios]) -> rx.Component:
         ),
     )
 
+
 def row_table(usuario: Usuarios) -> rx.Component:
     return rx.table.row(
         rx.table.cell(usuario.username),
@@ -75,11 +82,14 @@ def row_table(usuario: Usuarios) -> rx.Component:
         ),
     )
 
+
 def buscar_usuario_username() -> rx.Component:
     return rx.hstack(
-        rx.input(placeholder="Username", on_change=UsuarioState.buscar_onchange),
+        rx.input(placeholder="Username",
+                 on_change=UsuarioState.buscar_onchange),
         rx.button("Buscar usuario", on_click=UsuarioState.get_usuario_username)
     )
+
 
 def dialog_usuario_form() -> rx.Component:
     return rx.dialog.root(
@@ -105,6 +115,7 @@ def dialog_usuario_form() -> rx.Component:
             style={"width": "400px"},
         ),
     )
+
 
 def crear_usuario_form() -> rx.Component:
     return rx.form(

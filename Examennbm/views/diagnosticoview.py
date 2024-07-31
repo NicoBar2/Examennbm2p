@@ -7,26 +7,29 @@ class DiagnosticoState(rx.State):
     diagnosticos: list[Diagnostico]
     buscar_id: int = 0
 
-    rx.background
-    def get_todos_diagnosticos(self):
-        self.diagnosticos = servicio_diagnosticos_all()
+    @rx.background
+    async def get_todos_diagnosticos(self):
+        async with self:
+            self.diagnosticos = servicio_diagnosticos_all()
 
-    rx.background
-    def get_diagnostico_id(self):
-        self.diagnosticos = servicio_consultar_diagnostico(self.buscar_id)
+    @rx.background
+    async def get_diagnostico_id(self):
+        async with self:
+            self.diagnosticos = servicio_consultar_diagnostico(self.buscar_id)
 
     def buscar_onchange(self, value: str):
         self.buscar_id = int(value) if value.isdigit() else 0
 
-    rx.background
-    def crear_diagnostico(self, data: dict):
-        try:
-            self.diagnosticos = servicio_crear_diagnostico(
-                data['fecha'], data['descripcion'],
-                int(data['medico_id']), int(data['paciente_id'])
-            )
-        except Exception as e:
-            print(e)
+    @rx.background
+    async def crear_diagnostico(self, data: dict):
+        async with self:
+            try:
+                self.diagnosticos = servicio_crear_diagnostico(
+                    data['fecha'], data['descripcion'],
+                    int(data['medico_id']), int(data['paciente_id']))
+                self.diagnosticos = servicio_consultar_diagnostico(self.buscar_id)
+            except Exception as e:
+                print(e)
 
 @template(route="/diagnosticos", title="Lista de Diagnósticos", on_load=DiagnosticoState.get_todos_diagnosticos)
 def diagnostico_page() -> rx.Component:

@@ -7,27 +7,30 @@ class PacienteState(rx.State):
     pacientes: list[Pacientes]
     buscar_cedula: str = ""
 
-    rx.background
-    def get_todos_pacientes(self):
-        self.pacientes = servicio_pacientes_all()
+    @rx.background
+    async def get_todos_pacientes(self):
+        async with self:
+         self.pacientes = servicio_pacientes_all()
 
-    rx.background
-    def get_paciente_cedula(self):
-        self.pacientes = servicio_consultar_paciente(self.buscar_cedula)
+    @rx.background
+    async def get_paciente_cedula(self):
+        async with self:
+         self.pacientes = servicio_consultar_paciente(self.buscar_cedula)
 
     def buscar_onchange(self, value: str):
         self.buscar_cedula = value
 
-    rx.background
-    def crear_paciente(self, data: dict):
-        try:
-            self.pacientes = servicio_crear_paciente(
-                data['nombres'], data['apellidos'], data['cedula'],
-                data['correo'], data['celular'], data['direccion'],
-                data['grupo_sanguineo'], data['alergias']
-            )
-        except Exception as e:
-            print(e)
+    @rx.background
+    async def crear_paciente(self, data: dict):
+        async with self:
+            try:
+                self.pacientes = servicio_crear_paciente(
+                    data['nombres'], data['apellidos'], data['cedula'],
+                    data['correo'], data['celular'], data['direccion'],
+                    data['grupo_sanguineo'], data['alergias']
+                )
+            except Exception as e:
+                print(e)
 
 @template(route="/pacientes", title="Lista de Pacientes", on_load=PacienteState.get_todos_pacientes)
 def paciente_page() -> rx.Component:

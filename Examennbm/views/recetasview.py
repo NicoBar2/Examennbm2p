@@ -3,30 +3,36 @@ from ..models.citas import Receta
 from ..servicios.recetasservice import *
 from Examennbm.templates import template
 
+
 class RecetaState(rx.State):
     recetas: list[Receta]
     buscar_id: int = 0
 
-    rx.background
-    def get_todas_recetas(self):
-        self.recetas = servicio_recetas_all()
+    @rx.background
+    async def get_todas_recetas(self):
+        async with self:
+            self.recetas = servicio_recetas_all()
 
-    rx.background
-    def get_receta_id(self):
-        self.recetas = servicio_consultar_receta(self.buscar_id)
+    @rx.background
+    async def get_receta_id(self):
+        async with self:
+            self.recetas = servicio_consultar_receta(self.buscar_id)
 
     def buscar_onchange(self, value: str):
         self.buscar_id = int(value) if value.isdigit() else 0
 
-    rx.background
-    def crear_receta(self, data: dict):
-        try:
-            self.recetas = servicio_crear_receta(
-                data['fecha'], data['medicamentos'], data['indicaciones'],
-                int(data['medico_id']), int(data['paciente_id']), int(data['diagnostico_id'])
-            )
-        except Exception as e:
-            print(e)
+    @rx.background
+    async def crear_receta(self, data: dict):
+        async with self:
+            try:
+                self.recetas = servicio_crear_receta(
+                    data['fecha'], data['medicamentos'], data['indicaciones'],
+                    int(data['medico_id']), int(
+                        data['paciente_id']), int(data['diagnostico_id'])
+                )
+            except Exception as e:
+                print(e)
+
 
 @template(route="/recetas", title="Lista de Recetas", on_load=RecetaState.get_todas_recetas)
 def receta_page() -> rx.Component:
@@ -43,6 +49,7 @@ def receta_page() -> rx.Component:
         justify="center",
         style={"margin": "auto", 'width': "100%"},
     )
+
 
 def tabla_recetas(lista_recetas: list[Receta]) -> rx.Component:
     return rx.table.root(
@@ -63,6 +70,7 @@ def tabla_recetas(lista_recetas: list[Receta]) -> rx.Component:
         ),
     )
 
+
 def row_table(receta: Receta) -> rx.Component:
     return rx.table.row(
         rx.table.cell(receta.id),
@@ -80,11 +88,13 @@ def row_table(receta: Receta) -> rx.Component:
         ),
     )
 
+
 def buscar_receta_id() -> rx.Component:
     return rx.hstack(
         rx.input(placeholder="ID", on_change=RecetaState.buscar_onchange),
         rx.button("Buscar receta", on_click=RecetaState.get_receta_id)
     )
+
 
 def dialog_receta_form() -> rx.Component:
     return rx.dialog.root(
@@ -111,15 +121,19 @@ def dialog_receta_form() -> rx.Component:
         ),
     )
 
+
 def crear_receta_form() -> rx.Component:
     return rx.form(
         rx.vstack(
             rx.input(placeholder="Fecha", name="fecha", type="date"),
             rx.input(placeholder="Medicamentos", name="medicamentos"),
             rx.input(placeholder="Indicaciones", name="indicaciones"),
-            rx.input(placeholder="ID del Médico", name="medico_id", type="number"),
-            rx.input(placeholder="ID del Paciente", name="paciente_id", type="number"),
-            rx.input(placeholder="ID del Diagnóstico", name="diagnostico_id", type="number"),
+            rx.input(placeholder="ID del Médico",
+                     name="medico_id", type="number"),
+            rx.input(placeholder="ID del Paciente",
+                     name="paciente_id", type="number"),
+            rx.input(placeholder="ID del Diagnóstico",
+                     name="diagnostico_id", type="number"),
             rx.dialog.close(
                 rx.button("Crear receta", type="submit"),
             ),

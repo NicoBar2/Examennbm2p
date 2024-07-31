@@ -7,27 +7,30 @@ class MedicoState(rx.State):
     medicos: list[Medicos]
     buscar_licencia: str = ""
 
-    rx.background
-    def get_todos_medicos(self):
-        self.medicos = servicio_medicos_all()
+    @rx.background
+    async def get_todos_medicos(self):
+        async with self:
+          self.medicos = servicio_medicos_all()
 
-    rx.background
-    def get_medico_licencia(self):
-        self.medicos = servicio_consultar_medico(self.buscar_licencia)
+    @rx.background
+    async def get_medico_licencia(self):
+        async with self:
+          self.medicos = servicio_consultar_medico(self.buscar_licencia)
 
     def buscar_onchange(self, value: str):
         self.buscar_licencia = value
 
-    rx.background
-    def crear_medico(self, data: dict):
-        try:
+    @rx.background
+    async def crear_medico(self, data: dict):
+        async with self:
+          try:
             self.medicos = servicio_crear_medico(
                 data['licencia_medica'], data['nombres'],
                 data['apellidos'], data['cedula'],
                 data['correo'], data['celular'],
                 data['direccion']
             )
-        except Exception as e:
+          except Exception as e:
             print(e)
 
 @template(route="/medicos", title="Lista de Médicos", on_load=MedicoState.get_todos_medicos)
