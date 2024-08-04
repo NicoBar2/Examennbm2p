@@ -1,68 +1,68 @@
-from ..models.citas import Medicos
+from ..models.citas import Profesores
 from .conexion import connect
 from sqlmodel import SQLModel, Session, select
 from sqlalchemy.exc import SQLAlchemyError
 
-# Listar todos los médicos
-def select_all_medicos():
+# Listar todos los profesores
+def select_all_profesores():
     engine = connect()
     with Session(engine) as session:
-        consulta = select(Medicos)
-        medicos = session.exec(consulta)
-        return medicos.all()
+        consulta = select(Profesores)
+        profesores = session.exec(consulta)
+        return profesores.all()
 
-# Buscar médicos por número de licencia
-def select_medico_by_licencia(licencia: str):
+# Buscar profesores por número de identificación
+def select_profesor_by_identificacion(identificacion: str):
     engine = connect()
     with Session(engine) as session:
-        consulta = select(Medicos).where(Medicos.licencia_medica == licencia)
+        consulta = select(Profesores).where(Profesores.identificacion == identificacion)
         resultado = session.exec(consulta)
         return resultado.all()
 
-# Crear un nuevo médico
-def crear_medico(medico: Medicos):
+# Crear un nuevo profesor
+def crear_profesor(profesor: Profesores):
     engine = connect()
     try:
         with Session(engine) as session:
-            session.add(medico)
+            session.add(profesor)
             session.commit()
-            session.refresh(medico)
-            return medico
+            session.refresh(profesor)
+            return profesor
     except SQLAlchemyError as e:
-        print(f"Error al crear médico: {e}")
+        print(f"Error al crear profesor: {e}")
         return None
 
-# Eliminar un médico
-def eliminar_medico(id: int):
+# Eliminar un profesor
+def eliminar_profesor(id: int):
     engine = connect()
     try:
         with Session(engine) as session:
-            medico = session.get(Medicos, id)
-            if medico:
-                session.delete(medico)
+            profesor = session.get(Profesores, id)
+            if profesor:
+                session.delete(profesor)
                 session.commit()
                 return True
             else:
                 return False
     except SQLAlchemyError as e:
-        print(f"Error al eliminar médico: {e}")
+        print(f"Error al eliminar profesor: {e}")
         return False
 
-# Actualizar un médico
-def actualizar_medico(id: int, datos_actualizacion: dict):
+# Actualizar un profesor
+def actualizar_profesor(id: int, datos_actualizacion: dict):
     engine = connect()
     try:
         with Session(engine) as session:
-            medico = session.get(Medicos, id)
-            if medico:
+            profesor = session.get(Profesores, id)
+            if profesor:
                 for key, value in datos_actualizacion.items():
-                    setattr(medico, key, value)
-                session.add(medico)
+                    setattr(profesor, key, value)
+                session.add(profesor)
                 session.commit()
-                session.refresh(medico)
-                return medico
+                session.refresh(profesor)
+                return profesor
             else:
                 return None
     except SQLAlchemyError as e:
-        print(f"Error al actualizar médico: {e}")
+        print(f"Error al actualizar profesor: {e}")
         return None

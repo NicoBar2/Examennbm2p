@@ -1,31 +1,31 @@
 import reflex as rx
-from ..models.citas import Medicos
-from ..servicios.medicosservice import *
+from ..models.citas import Profesores
+from ..servicios.profesoresservice import *
 from Examennbm.templates import template
 
-class MedicoState(rx.State):
-    medicos: list[Medicos]
-    buscar_licencia: str = ""
+class ProfesorState(rx.State):
+    profesores: list[Profesores]
+    buscar_identificacion: str = ""
 
     @rx.background
-    async def get_todos_medicos(self):
+    async def get_todos_profesores(self):
         async with self:
-          self.medicos = servicio_medicos_all()
+          self.profesores = servicio_profesores_all()
 
     @rx.background
-    async def get_medico_licencia(self):
+    async def get_profesor_identificacion(self):
         async with self:
-          self.medicos = servicio_consultar_medico(self.buscar_licencia)
+          self.profesores = servicio_consultar_profesor(self.buscar_identificacion)
 
     def buscar_onchange(self, value: str):
-        self.buscar_licencia = value
+        self.buscar_identificacion = value
 
     @rx.background
-    async def crear_medico(self, data: dict):
+    async def crear_profesor(self, data: dict):
         async with self:
           try:
-            self.medicos = servicio_crear_medico(
-                data['licencia_medica'], data['nombres'],
+            self.profesores = servicio_crear_profesor(
+                data['identificacion'], data['nombres'],
                 data['apellidos'], data['cedula'],
                 data['correo'], data['celular'],
                 data['direccion']
@@ -33,14 +33,14 @@ class MedicoState(rx.State):
           except Exception as e:
             print(e)
 
-@template(route="/medicos", title="Lista de Médicos", on_load=MedicoState.get_todos_medicos)
-def medico_page() -> rx.Component:
+@template(route="/profesores", title="Lista de Profesores", on_load=ProfesorState.get_todos_profesores)
+def profesor_page() -> rx.Component:
     return rx.flex(
-        rx.heading("Médicos", title="Médicos", size="5", center=True),
+        rx.heading("Profesores", title="Profesores", size="5", center=True),
         rx.vstack(
-            buscar_medico_licencia(),
-            dialog_medico_form(),
-            tabla_medicos(MedicoState.medicos),
+            buscar_profesor_identificacion(),
+            dialog_profesor_form(),
+            tabla_profesores(ProfesorState.profesores),
             justify="center",
             style={"margin": "20px", 'width': "100%"},
         ),
@@ -49,11 +49,11 @@ def medico_page() -> rx.Component:
         style={"margin": "auto", 'width': "100%"},
     )
 
-def tabla_medicos(lista_medicos: list[Medicos]) -> rx.Component:
+def tabla_profesores(lista_profesores: list[Profesores]) -> rx.Component:
     return rx.table.root(
         rx.table.header(
             rx.table.row(
-                rx.table.column_header_cell("Licencia"),
+                rx.table.column_header_cell("Identificación"),
                 rx.table.column_header_cell("Nombres"),
                 rx.table.column_header_cell("Apellidos"),
                 rx.table.column_header_cell("Correo"),
@@ -62,17 +62,17 @@ def tabla_medicos(lista_medicos: list[Medicos]) -> rx.Component:
             )
         ),
         rx.table.body(
-            rx.foreach(lista_medicos, row_table)
+            rx.foreach(lista_profesores, row_table)
         ),
     )
 
-def row_table(medico: Medicos) -> rx.Component:
+def row_table(profesor: Profesores) -> rx.Component:
     return rx.table.row(
-        rx.table.cell(medico.licencia_medica),
-        rx.table.cell(medico.nombres),
-        rx.table.cell(medico.apellidos),
-        rx.table.cell(medico.correo),
-        rx.table.cell(medico.celular),
+        rx.table.cell(profesor.identificacion),
+        rx.table.cell(profesor.nombres),
+        rx.table.cell(profesor.apellidos),
+        rx.table.cell(profesor.correo),
+        rx.table.cell(profesor.celular),
         rx.table.cell(
             rx.hstack(
                 rx.button("Editar", variant="outline"),
@@ -81,21 +81,21 @@ def row_table(medico: Medicos) -> rx.Component:
         ),
     )
 
-def buscar_medico_licencia() -> rx.Component:
+def buscar_profesor_identificacion() -> rx.Component:
     return rx.hstack(
-        rx.input(placeholder="Licencia", on_change=MedicoState.buscar_onchange),
-        rx.button("Buscar médico", on_click=MedicoState.get_medico_licencia)
+        rx.input(placeholder="Identificación", on_change=ProfesorState.buscar_onchange),
+        rx.button("Buscar profesor", on_click=ProfesorState.get_profesor_identificacion)
     )
 
-def dialog_medico_form() -> rx.Component:
+def dialog_profesor_form() -> rx.Component:
     return rx.dialog.root(
         rx.dialog.trigger(
-            rx.button("Crear médico", variant="outline"),
+            rx.button("Crear profesor", variant="outline"),
         ),
         rx.dialog.content(
             rx.flex(
-                rx.dialog.title("Crear médico"),
-                crear_medico_form(),
+                rx.dialog.title("Crear profesor"),
+                crear_profesor_form(),
                 justify="center",
                 align="center",
                 direction="column",
@@ -112,10 +112,10 @@ def dialog_medico_form() -> rx.Component:
         ),
     )
 
-def crear_medico_form() -> rx.Component:
+def crear_profesor_form() -> rx.Component:
     return rx.form(
         rx.vstack(
-            rx.input(placeholder="Licencia médica", name="licencia_medica"),
+            rx.input(placeholder="Identificación", name="identificacion"),
             rx.input(placeholder="Nombres", name="nombres"),
             rx.input(placeholder="Apellidos", name="apellidos"),
             rx.input(placeholder="Cédula", name="cedula"),
@@ -123,8 +123,8 @@ def crear_medico_form() -> rx.Component:
             rx.input(placeholder="# celular", name="celular"),
             rx.input(placeholder="Dirección", name="direccion"),
             rx.dialog.close(
-                rx.button("Crear médico", type="submit"),
+                rx.button("Crear profesor", type="submit"),
             ),
         ),
-        on_submit=MedicoState.crear_medico,
+        on_submit=ProfesorState.crear_profesor,
     )

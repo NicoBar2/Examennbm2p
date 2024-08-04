@@ -25,54 +25,54 @@ class HojaVida(rx.Model, table=True):
     persona_id: Optional[int] = Field(foreign_key="persona.id")
     persona: Optional['Persona'] = Relationship(back_populates="hoja_vida")
 
-class Medicos(rx.Model, table=True):
+class Profesores(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    licencia_medica: str = Field(unique=True)
+    identificacion: str = Field(unique=True)
     nombres: str
-    apellidos: str
     correo: str
+    apellidos: str
     celular: str
-    especialidades: List["Especialidad"] = Relationship(back_populates="medico")
-    diagnosticos: List["Diagnostico"] = Relationship(back_populates="medico")
-    recetas: List["Receta"] = Relationship(back_populates="medico")
+    especialidades: List["Especialidad"] = Relationship(back_populates="profesor")
+    evaluaciones: List["Evaluacion"] = Relationship(back_populates="profesor")
+    tareas: List["Tarea"] = Relationship(back_populates="profesor")
 
-class Pacientes(rx.Model, table=True):
+class Estudiantes(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    grupo_sanguineo: str
-    alergias: str
+    grado: str
+    notas_adicionales: str
     cedula: str
     nombres: str
     apellidos: str
     correo: str
     celular: str
-    diagnosticos: List["Diagnostico"] = Relationship(back_populates="paciente")
-    recetas: List["Receta"] = Relationship(back_populates="paciente")
+    evaluaciones: List["Evaluacion"] = Relationship(back_populates="estudiante")
+    tareas: List["Tarea"] = Relationship(back_populates="estudiante")
 
 class Especialidad(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     nombre: str = Field(unique=True)
     descripcion: str
-    medicos_id: Optional[int] = Field(foreign_key="medicos.id")
-    medico: Optional['Medicos'] = Relationship(back_populates="especialidades")
+    profesores_id: Optional[int] = Field(foreign_key="profesores.id")
+    profesor: Optional['Profesores'] = Relationship(back_populates="especialidades")
 
-class Diagnostico(rx.Model, table=True):
+class Evaluacion(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     fecha: str
     descripcion: str
-    medico_id: Optional[int] = Field(foreign_key="medicos.id")
-    paciente_id: Optional[int] = Field(foreign_key="pacientes.id")
-    medico: Optional['Medicos'] = Relationship(back_populates="diagnosticos")
-    paciente: Optional['Pacientes'] = Relationship(back_populates="diagnosticos")
-    recetas: List["Receta"] = Relationship(back_populates="diagnostico")
+    profesor_id: Optional[int] = Field(foreign_key="profesores.id")
+    estudiante_id: Optional[int] = Field(foreign_key="estudiantes.id")
+    profesor: Optional['Profesores'] = Relationship(back_populates="evaluaciones")
+    estudiante: Optional['Estudiantes'] = Relationship(back_populates="evaluaciones")
+    tareas: List["Tarea"] = Relationship(back_populates="evaluacion")
 
-class Receta(rx.Model, table=True):
+class Tarea(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     fecha: str
-    medicamentos: str
-    indicaciones: str
-    medico_id: Optional[int] = Field(foreign_key="medicos.id")
-    paciente_id: Optional[int] = Field(foreign_key="pacientes.id")
-    diagnostico_id: Optional[int] = Field(foreign_key="diagnostico.id")
-    medico: Optional['Medicos'] = Relationship(back_populates="recetas")
-    paciente: Optional['Pacientes'] = Relationship(back_populates="recetas")
-    diagnostico: Optional['Diagnostico'] = Relationship(back_populates="recetas")
+    descripcion: str
+    instrucciones: str
+    profesor_id: Optional[int] = Field(foreign_key="profesores.id")
+    estudiante_id: Optional[int] = Field(foreign_key="estudiantes.id")
+    evaluacion_id: Optional[int] = Field(foreign_key="evaluacion.id")
+    profesor: Optional['Profesores'] = Relationship(back_populates="tareas")
+    estudiante: Optional['Estudiantes'] = Relationship(back_populates="tareas")
+    evaluacion: Optional['Evaluacion'] = Relationship(back_populates="tareas")
