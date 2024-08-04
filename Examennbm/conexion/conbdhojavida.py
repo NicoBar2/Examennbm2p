@@ -18,6 +18,8 @@ def select_hoja_vida_by_persona_id(persona_id: int):
         return resultado.first()
 
 def crear_hoja_vida(hoja_vida: HojaVida):
+    print("hoja de vida")
+    print(hoja_vida)
     engine = connect()
     try:
         with Session(engine) as session:

@@ -11,7 +11,7 @@ def dashboard() -> rx.Component:
     """
     return rx.vstack(
         rx.heading("UIDE", size="8"),
-        rx.text("Sistema de Gestión de Citas Médicas "),
+        rx.text("Sistema de Gestión de Academica "),
         rx.text(
             " ",
         ),

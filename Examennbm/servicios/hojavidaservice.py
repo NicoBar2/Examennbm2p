@@ -19,6 +19,8 @@ def servicio_consultar_hoja_vida(persona_id: int):
         return select_all_hojas_vida()
 
 def servicio_crear_hoja_vida(persona_id: int, experiencia: str, educacion: str, habilidades: str):
+    print("person id")
+    print(persona_id)
     hoja_vida_existente = servicio_consultar_hoja_vida(persona_id)
     if not hoja_vida_existente:
         nueva_hoja_vida = HojaVida(persona_id=persona_id, experiencia=experiencia,
